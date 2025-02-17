@@ -1,0 +1,51 @@
+#cloud-config
+# worker nodes typically have an additional disk attached for storage
+
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
+
+groups:
+  - admingroup: [root,sys,ubuntu]
+
+users:
+  - name: ubuntu
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin
+    homedir: /home/ubuntu
+    shell: /bin/bash
+    lock_passwd: true
+    ssh_authorized_keys: 
+      - <SSH_PUBLIC_KEY>
+
+packages:
+  - curl
+  - apt-transport-https
+  - ca-certificates
+  - software-properties-common
+  - wget
+  - git
+  - iptables
+  - open-iscsi
+  - nfs-common
+  - cryptsetup
+  - dmsetup
+  - lvm2
+  - qemu-guest-agent
+  - qemu-utils
+
+runcmd:
+  - sudo parted /dev/<disk> --script mklabel gpt mkpart primary ext4 0% 100%
+  - sudo mkfs.ext4 /dev/<disk>1
+  - sudo mkdir -p /data
+  - sudo mount /dev/<disk>1 /data
+  - echo "/dev/<disk>1 /data ext4 defaults 0 0" | sudo tee -a /etc/fstab
+  - sudo chown -R ubuntu:ubuntu /data
+  
+  - ufw --force disable
+  - ufw --force reset
+  - snap install btop
+  - - systemctl
+    - enable
+    - --now
+    - qemu-guest-agent.service
