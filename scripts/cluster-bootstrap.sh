@@ -7,8 +7,10 @@ set -euo pipefail
 # Configuration
 KUBE_CONFIG="$HOME/.kube/config"
 LONGHORN_REPO_URL=${LONGHORN_REPO_URL:-"https://charts.longhorn.io"}
-TRAEFIK_REPO_URL=${TRAEFIK_REPO_URL:-"https://helm.traefik.io/traefik"}
-METALLB_VERSION=${METALLB_VERSION:-"v0.14.9"}
+LONGHORN_VERSION=${LONGHORN_VERSION:-"1.11.0"}
+TRAEFIK_REPO_URL=${TRAEFIK_REPO_URL:-"https://traefik.github.io/charts"}
+TRAEFIK_VERSION=${TRAEFIK_VERSION:-"39.0.1"}
+METALLB_VERSION=${METALLB_VERSION:-"v0.15.3"}
 
 # Function for logging
 log() {
@@ -56,6 +58,7 @@ install_longhorn() {
     helm upgrade --install longhorn longhorn/longhorn \
         --namespace longhorn-system \
         --create-namespace \
+        --version "${LONGHORN_VERSION}" \
         --wait \
         --timeout 10m
     
@@ -102,6 +105,7 @@ install_traefik() {
     
     helm upgrade --install traefik traefik/traefik \
         --namespace traefik \
+        --version "${TRAEFIK_VERSION}" \
         --wait \
         --timeout 5m
 }
